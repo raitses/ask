@@ -164,16 +164,32 @@ make build-all
 
 The tool automatically manages conversation context to keep token usage reasonable:
 
+### Pruning Limits
 - **Soft Limits**: Pruning triggered at 40 messages or 15,000 tokens
 - **Hard Limits**: Maximum 100 messages, 25,000 tokens, or 30 days old
+- **Emergency Limits**: Aggressive pruning at 150 messages or 37,500 tokens
 - **AI-Driven Pruning**: When soft limits are reached, AI intelligently selects which exchanges to remove
 - **Preservation Rules**: Always keeps recent exchanges, code examples, and important context
 - **Fallback**: If AI pruning fails, simple FIFO pruning is used
 
+### Content Size Safeguards
+To prevent single messages from blowing past context limits:
+- **Message Limit**: Individual messages capped at 50,000 chars (~14k tokens)
+- **README Limit**: README content limited to 8KB
+- **File Tree Limit**: Directory tree limited to 20KB
+- **Directory Depth**: Analysis descends maximum 3 levels
+- **Auto-truncation**: Oversized content automatically truncated with warnings
+
+### Monitoring
 You can check context status with:
 ```bash
 ask --info
 ```
+
+The tool will warn you if:
+- Content is truncated
+- Emergency pruning is triggered
+- Context is approaching limits
 
 ## Roadmap
 

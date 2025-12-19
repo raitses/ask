@@ -45,9 +45,9 @@ type Analyzer struct {
 func NewAnalyzer(rootDir string) *Analyzer {
 	return &Analyzer{
 		rootDir:      rootDir,
-		maxDepth:     4,          // Only descend 4 levels
+		maxDepth:     3,          // Only descend 3 levels (reduced from 4)
 		maxFileSize:  1024 * 100, // Skip files > 100KB for tree
-		maxReadmeLen: 10000,      // Max 10KB of README content
+		maxReadmeLen: 8000,       // Max 8KB of README content (reduced from 10KB)
 	}
 }
 
@@ -87,7 +87,15 @@ func (a *Analyzer) generateFileTree() (string, error) {
 		return "", err
 	}
 
-	return builder.String(), nil
+	tree := builder.String()
+
+	// Truncate if too large (20KB max)
+	const maxTreeSize = 20000
+	if len(tree) > maxTreeSize {
+		tree = tree[:maxTreeSize] + "\n... (file tree truncated)"
+	}
+
+	return tree, nil
 }
 
 // walkDirectory recursively walks the directory structure

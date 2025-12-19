@@ -45,6 +45,11 @@ func NewManager(cfg *config.Config) (*Manager, error) {
 
 // Query sends a query to the LLM with conversation context
 func (m *Manager) Query(userQuery string) (string, error) {
+	// Check if we need emergency pruning BEFORE adding messages
+	if err := m.checkEmergencyPrune(); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: Emergency pruning failed: %v\n", err)
+	}
+
 	// Add user message to context
 	m.store.AddMessage("user", userQuery)
 
@@ -79,7 +84,12 @@ func (m *Manager) Query(userQuery string) (string, error) {
 	// Add assistant response to context
 	m.store.AddMessage("assistant", response)
 
-	// Check if pruning is needed
+	// Check if we're way over limits after adding response
+	if err := m.checkEmergencyPrune(); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: Emergency pruning failed: %v\n", err)
+	}
+
+	// Check if normal pruning is needed
 	if err := m.checkAndPrune(); err != nil {
 		// Log warning but don't fail the query
 		fmt.Fprintf(os.Stderr, "Warning: Context pruning failed: %v\n", err)
@@ -91,6 +101,32 @@ func (m *Manager) Query(userQuery string) (string, error) {
 	}
 
 	return response, nil
+}
+
+// checkEmergencyPrune performs aggressive pruning if we're way over limits
+func (m *Manager) checkEmergencyPrune() error {
+	tokens := m.store.EstimateTokens()
+	messages := len(m.store.Messages)
+
+	// Emergency thresholds (150% of hard limits)
+	emergencyTokens := 37500  // 1.5 * 25000
+	emergencyMessages := 150  // 1.5 * 100
+
+	if tokens > emergencyTokens || messages > emergencyMessages {
+		fmt.Fprintf(os.Stderr, "⚠️  Emergency pruning: context way over limits (%d tokens, %d messages)\n",
+			tokens, messages)
+
+		pruner := NewPruner(m.store, m.client)
+		// Force hard pruning to get back under limits quickly
+		if err := pruner.pruneHard(); err != nil {
+			return err
+		}
+
+		fmt.Fprintf(os.Stderr, "Emergency pruning complete: %d messages remain (%d tokens)\n",
+			len(m.store.Messages), m.store.EstimateTokens())
+	}
+
+	return nil
 }
 
 // checkAndPrune checks if pruning is needed and performs it

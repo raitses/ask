@@ -115,8 +115,26 @@ func (s *Store) Save() error {
 	return nil
 }
 
-// AddMessage adds a new message to the conversation
+const (
+	// MaxMessageLength is the maximum allowed length for a single message
+	MaxMessageLength = 50000 // ~14k tokens max per message
+
+	// MaxReadmeLength is the maximum README content to store
+	MaxReadmeLength = 10000
+
+	// MaxFileTreeLength is the maximum file tree size
+	MaxFileTreeLength = 20000
+)
+
+// AddMessage adds a new message to the conversation with size limits
 func (s *Store) AddMessage(role, content string) {
+	// Truncate if too long
+	truncated := false
+	if len(content) > MaxMessageLength {
+		content = content[:MaxMessageLength] + "\n\n[Content truncated - exceeded maximum message length]"
+		truncated = true
+	}
+
 	msg := Message{
 		Role:      role,
 		Content:   content,
@@ -125,6 +143,10 @@ func (s *Store) AddMessage(role, content string) {
 	s.Messages = append(s.Messages, msg)
 	s.Metadata.TotalMessages = len(s.Messages)
 	s.Metadata.TotalTokensEstimate = s.EstimateTokens()
+
+	if truncated {
+		fmt.Fprintf(os.Stderr, "⚠️  Warning: Message truncated (exceeded %d chars)\n", MaxMessageLength)
+	}
 }
 
 // EstimateTokens provides a rough estimate of token count
