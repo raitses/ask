@@ -116,17 +116,57 @@ func (m *Manager) checkEmergencyPrune() error {
 		fmt.Fprintf(os.Stderr, "⚠️  Emergency pruning: context way over limits (%d tokens, %d messages)\n",
 			tokens, messages)
 
-		pruner := NewPruner(m.store, m.client)
-		// Force hard pruning to get back under limits quickly
-		if err := pruner.pruneHard(); err != nil {
-			return err
+		// Check if the problem is the analysis cache
+		if m.store.AnalysisCache != nil {
+			analysisTokens := m.estimateAnalysisCacheTokens()
+
+			// If analysis cache is > 50% of the tokens, it's the problem
+			if analysisTokens > tokens/2 {
+				fmt.Fprintf(os.Stderr, "⚠️  Analysis cache is the issue (%d of %d tokens) - clearing it\n",
+					analysisTokens, tokens)
+
+				// Clear the analysis cache entirely
+				m.store.AnalysisCache = nil
+				m.store.LastAnalysisAt = nil
+
+				fmt.Fprintf(os.Stderr, "Analysis cache cleared. Tokens reduced from %d to %d\n",
+					tokens, m.store.EstimateTokens())
+
+				// Re-check tokens after clearing analysis
+				tokens = m.store.EstimateTokens()
+			}
 		}
 
-		fmt.Fprintf(os.Stderr, "Emergency pruning complete: %d messages remain (%d tokens)\n",
-			len(m.store.Messages), m.store.EstimateTokens())
+		// If still over limits, prune messages
+		if tokens > emergencyTokens || messages > emergencyMessages {
+			pruner := NewPruner(m.store, m.client)
+			if err := pruner.pruneHard(); err != nil {
+				return err
+			}
+
+			fmt.Fprintf(os.Stderr, "Emergency pruning complete: %d messages remain (%d tokens)\n",
+				len(m.store.Messages), m.store.EstimateTokens())
+		}
 	}
 
 	return nil
+}
+
+// estimateAnalysisCacheTokens estimates tokens used by analysis cache
+func (m *Manager) estimateAnalysisCacheTokens() int {
+	if m.store.AnalysisCache == nil {
+		return 0
+	}
+
+	tokens := 0
+	// File tree tokens
+	tokens += int(float64(len(m.store.AnalysisCache.FileTree)) / 3.5)
+	// README tokens
+	tokens += int(float64(len(m.store.AnalysisCache.ReadmeContent)) / 3.5)
+	// Config list overhead
+	tokens += len(m.store.AnalysisCache.PrimaryConfigs) * 2
+
+	return tokens
 }
 
 // checkAndPrune checks if pruning is needed and performs it

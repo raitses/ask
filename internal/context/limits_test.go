@@ -46,13 +46,13 @@ func TestAnalyzerFileSizeLimits(t *testing.T) {
 
 	analyzer := NewAnalyzer(tmpDir)
 
-	// Verify limits are set correctly
-	if analyzer.maxReadmeLen != 8000 {
-		t.Errorf("maxReadmeLen = %d, want 8000", analyzer.maxReadmeLen)
+	// Verify limits are set correctly (updated to more aggressive values)
+	if analyzer.maxReadmeLen != 5000 {
+		t.Errorf("maxReadmeLen = %d, want 5000", analyzer.maxReadmeLen)
 	}
 
-	if analyzer.maxDepth != 3 {
-		t.Errorf("maxDepth = %d, want 3", analyzer.maxDepth)
+	if analyzer.maxDepth != 2 {
+		t.Errorf("maxDepth = %d, want 2", analyzer.maxDepth)
 	}
 }
 

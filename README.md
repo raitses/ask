@@ -175,10 +175,11 @@ The tool automatically manages conversation context to keep token usage reasonab
 ### Content Size Safeguards
 To prevent single messages from blowing past context limits:
 - **Message Limit**: Individual messages capped at 50,000 chars (~14k tokens)
-- **README Limit**: README content limited to 8KB
-- **File Tree Limit**: Directory tree limited to 20KB
-- **Directory Depth**: Analysis descends maximum 3 levels
+- **README Limit**: README content limited to 5KB
+- **File Tree Limit**: Directory tree limited to 10KB
+- **Directory Depth**: Analysis descends maximum 2 levels
 - **Auto-truncation**: Oversized content automatically truncated with warnings
+- **Analysis Cache Clearing**: If analysis cache exceeds 50% of token limit, it's automatically cleared
 
 ### Monitoring
 You can check context status with:

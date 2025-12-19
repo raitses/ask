@@ -45,9 +45,9 @@ type Analyzer struct {
 func NewAnalyzer(rootDir string) *Analyzer {
 	return &Analyzer{
 		rootDir:      rootDir,
-		maxDepth:     3,          // Only descend 3 levels (reduced from 4)
-		maxFileSize:  1024 * 100, // Skip files > 100KB for tree
-		maxReadmeLen: 8000,       // Max 8KB of README content (reduced from 10KB)
+		maxDepth:     2,          // Only descend 2 levels (reduced from 3)
+		maxFileSize:  1024 * 50,  // Skip files > 50KB for tree
+		maxReadmeLen: 5000,       // Max 5KB of README content
 	}
 }
 
@@ -89,10 +89,10 @@ func (a *Analyzer) generateFileTree() (string, error) {
 
 	tree := builder.String()
 
-	// Truncate if too large (20KB max)
-	const maxTreeSize = 20000
+	// Aggressive truncation - max 10KB for file tree
+	const maxTreeSize = 10000
 	if len(tree) > maxTreeSize {
-		tree = tree[:maxTreeSize] + "\n... (file tree truncated)"
+		tree = tree[:maxTreeSize] + "\n\n[File tree truncated - project too large]\n[Tip: Use 'ask' without --analyze for less context]"
 	}
 
 	return tree, nil
@@ -147,8 +147,11 @@ func (a *Analyzer) findReadme() string {
 		path := filepath.Join(a.rootDir, filename)
 		if data, err := os.ReadFile(path); err == nil {
 			content := string(data)
-			if len(content) > a.maxReadmeLen {
-				content = content[:a.maxReadmeLen] + "\n... (truncated)"
+
+			// Aggressive truncation - max 5KB for README
+			maxLen := 5000
+			if len(content) > maxLen {
+				content = content[:maxLen] + "\n\n[README truncated - too large]"
 			}
 			return content
 		}
