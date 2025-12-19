@@ -124,11 +124,17 @@ export ASK_API_URL="https://api.openai.com/v1/chat/completions"
 Simply type `ask` followed by your question:
 
 ```bash
-ask how do I run tests in this project?
+ask how do I run tests in this project
 
-ask what's the difference between these two functions?
+ask "what's the difference between these two functions"
 
-ask how do I implement authentication?
+ask how do I implement authentication
+```
+
+**Note:** If your query contains special shell characters (`?`, `!`, `'`, etc.), wrap it in quotes:
+```bash
+ask "how does this work?"
+ask 'what'\''s the best approach?'
 ```
 
 ### Context Management
@@ -147,7 +153,10 @@ ask --reset
 
 Analyze project structure before asking:
 ```bash
-ask --analyze what's the architecture of this codebase?
+ask --analyze "what's the architecture of this codebase"
+
+# Or without special characters
+ask --analyze what is the project structure
 ```
 
 The analysis includes:

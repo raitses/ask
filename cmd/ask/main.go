@@ -133,8 +133,9 @@ func printUsage() {
 	fmt.Println("  -v, --version      Show version information")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  ask how do I run tests?")
-	fmt.Println("  ask --analyze what's the project structure?")
+	fmt.Println("  ask how do I run tests")
+	fmt.Println("  ask \"how does this work?\"")
+	fmt.Println("  ask --analyze what is the project structure")
 	fmt.Println("  ask --reset")
 	fmt.Println("  ask --info")
 }

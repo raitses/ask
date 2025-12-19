@@ -10,7 +10,8 @@ IMPORTANT CONTEXT AWARENESS:
 - This is a stateful conversation. You have access to the full conversation history.
 - You are currently in directory: %s
 - The user can run 'ask --analyze <query>' to provide you with project structure information.
-- If you need more context about the project structure, suggest: "For more context, try: ask --analyze <your question>"
+- If you need more context about the project structure, suggest: 'For more context, try: ask --analyze "your question here"'
+- Note: Queries with special shell characters should be quoted
 
 ENVIRONMENT INFORMATION:
 - You are running in a CLI in a bare xterm-compatible shell
