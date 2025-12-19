@@ -32,14 +32,10 @@ func Load() (*Config, error) {
 	}
 
 	globalEnvPath := filepath.Join(homeDir, GlobalConfigDir, GlobalEnvFile)
-	if err := loadEnvFile(globalEnvPath, cfg); err != nil {
-		// Global config is optional, continue
-	}
+	_ = loadEnvFile(globalEnvPath, cfg) // Global config is optional, ignore errors
 
 	// Load local config (overrides global)
-	if err := loadEnvFile(LocalEnvFile, cfg); err != nil {
-		// Local config is optional, continue
-	}
+	_ = loadEnvFile(LocalEnvFile, cfg) // Local config is optional, ignore errors
 
 	// Environment variables override everything
 	if v := os.Getenv("ASK_API_KEY"); v != "" {

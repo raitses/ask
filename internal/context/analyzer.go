@@ -55,9 +55,7 @@ func NewAnalyzer(rootDir string) *Analyzer {
 func (a *Analyzer) Analyze() (*AnalysisCache, error) {
 	// Parse .gitignore if it exists
 	a.gitignore = NewGitignoreParser(a.rootDir)
-	if err := a.gitignore.Parse(); err != nil {
-		// .gitignore is optional, continue without it
-	}
+	_ = a.gitignore.Parse() // .gitignore is optional, ignore errors
 
 	// Generate file tree
 	tree, err := a.generateFileTree()
