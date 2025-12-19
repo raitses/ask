@@ -195,6 +195,16 @@ export ASK_MODEL="gpt-3.5-turbo"
 - Go 1.24+
 - (Optional) Nix for development environment
 
+### Setup
+
+```bash
+# Install git hooks (runs tests and linter before push)
+make setup-hooks
+
+# Install golangci-lint for local linting
+nix-shell --run 'go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest'
+```
+
 ### Building
 
 ```bash
@@ -209,6 +219,9 @@ make test
 
 # Run tests with race detector
 make test-race
+
+# Run linter
+make lint
 ```
 
 ### Build for Multiple Platforms

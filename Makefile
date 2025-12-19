@@ -1,4 +1,4 @@
-.PHONY: build install clean test build-all release-test
+.PHONY: build install clean test test-race lint setup-hooks build-all release-test version
 
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -24,6 +24,20 @@ test:
 # Run tests with race detector
 test-race:
 	nix-shell --run "go test -race -v ./..."
+
+# Run linter
+lint:
+	@if [ -f "$(HOME)/go/bin/golangci-lint" ]; then \
+		nix-shell --run "$(HOME)/go/bin/golangci-lint run"; \
+	else \
+		echo "golangci-lint not found. Install with: nix-shell --run 'go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest'"; \
+		exit 1; \
+	fi
+
+# Setup git hooks for local development
+setup-hooks:
+	@chmod +x scripts/install-hooks.sh
+	@./scripts/install-hooks.sh
 
 # Build for multiple platforms
 build-all:
