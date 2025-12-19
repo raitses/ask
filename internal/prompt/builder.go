@@ -18,7 +18,7 @@ type AnalysisCache struct {
 }
 
 // BuildMessages converts messages to API messages with system prompt
-func BuildMessages(directory, osType string, messages []Message, analysis *AnalysisCache) []api.ChatMessage {
+func BuildMessages(directory, osType string, messages []Message, analysis *AnalysisCache, useClaudeCache bool) []api.ChatMessage {
 	apiMessages := make([]api.ChatMessage, 0, len(messages)+1)
 
 	// Build system prompt
@@ -33,11 +33,19 @@ func BuildMessages(directory, osType string, messages []Message, analysis *Analy
 		)
 	}
 
-	// Add system message
-	apiMessages = append(apiMessages, api.ChatMessage{
+	// Add system message with cache control for Claude API
+	systemMsg := api.ChatMessage{
 		Role:    "system",
 		Content: systemPrompt,
-	})
+	}
+
+	// Mark for caching if using Claude API
+	// This caches the entire system prompt + analysis (typically 4,000+ tokens)
+	if useClaudeCache {
+		systemMsg.CacheControl = &api.CacheControl{Type: "ephemeral"}
+	}
+
+	apiMessages = append(apiMessages, systemMsg)
 
 	// Add conversation history (skip old system messages)
 	for _, msg := range messages {

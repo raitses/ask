@@ -2,8 +2,14 @@ package api
 
 // ChatMessage represents a message in the chat completion request
 type ChatMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role         string        `json:"role"`
+	Content      string        `json:"content"`
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
+}
+
+// CacheControl specifies caching behavior for Claude API
+type CacheControl struct {
+	Type string `json:"type"` // "ephemeral" for Claude prompt caching
 }
 
 // ChatCompletionRequest represents the request to the chat completions API

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/raitses/ask/internal/config"
@@ -25,6 +26,17 @@ func NewClient(cfg *config.Config) *Client {
 			Timeout: 60 * time.Second,
 		},
 	}
+}
+
+// isClaudeAPI detects if the configured API is Anthropic's Claude
+func (c *Client) isClaudeAPI() bool {
+	url := strings.ToLower(c.config.APIURL)
+	return strings.Contains(url, "anthropic.com") || strings.Contains(url, "claude")
+}
+
+// IsClaudeAPI returns true if configured to use Claude API
+func (c *Client) IsClaudeAPI() bool {
+	return c.isClaudeAPI()
 }
 
 // ChatCompletion sends a chat completion request and returns the response
@@ -65,8 +77,19 @@ func (c *Client) makeRequest(body []byte) (string, error) {
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	if c.config.APIKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+
+	// Set authentication based on API provider
+	if c.isClaudeAPI() {
+		// Claude API uses x-api-key header
+		if c.config.APIKey != "" {
+			httpReq.Header.Set("x-api-key", c.config.APIKey)
+			httpReq.Header.Set("anthropic-version", "2023-06-01")
+		}
+	} else {
+		// OpenAI and compatible APIs use Bearer token
+		if c.config.APIKey != "" {
+			httpReq.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+		}
 	}
 
 	resp, err := c.httpClient.Do(httpReq)

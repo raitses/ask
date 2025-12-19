@@ -72,8 +72,9 @@ func (m *Manager) Query(userQuery string) (string, error) {
 		}
 	}
 
-	// Build messages for API
-	messages := prompt.BuildMessages(m.store.Directory, m.config.OS, promptMessages, analysis)
+	// Build messages for API with Claude prompt caching if applicable
+	useClaudeCache := m.client.IsClaudeAPI()
+	messages := prompt.BuildMessages(m.store.Directory, m.config.OS, promptMessages, analysis, useClaudeCache)
 
 	// Get response from API
 	response, err := m.client.ChatCompletion(messages)
