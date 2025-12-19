@@ -11,10 +11,10 @@ func TestAnalyzerFileTree(t *testing.T) {
 	tmpDir := t.TempDir()
 	
 	// Create some test files
-	os.WriteFile(filepath.Join(tmpDir, "README.md"), []byte("# Test"), 0644)
-	os.WriteFile(filepath.Join(tmpDir, "go.mod"), []byte("module test"), 0644)
-	os.MkdirAll(filepath.Join(tmpDir, "src"), 0755)
-	os.WriteFile(filepath.Join(tmpDir, "src/main.go"), []byte("package main"), 0644)
+	_ = os.WriteFile(filepath.Join(tmpDir, "README.md"), []byte("# Test"), 0644)
+	_ = os.WriteFile(filepath.Join(tmpDir, "go.mod"), []byte("module test"), 0644)
+	_ = os.MkdirAll(filepath.Join(tmpDir, "src"), 0755)
+	_ = os.WriteFile(filepath.Join(tmpDir, "src/main.go"), []byte("package main"), 0644)
 	
 	analyzer := NewAnalyzer(tmpDir)
 	cache, err := analyzer.Analyze()
@@ -61,7 +61,7 @@ node_modules
 *.log
 dist/
 `
-	os.WriteFile(filepath.Join(tmpDir, ".gitignore"), []byte(gitignore), 0644)
+	_ = os.WriteFile(filepath.Join(tmpDir, ".gitignore"), []byte(gitignore), 0644)
 	
 	parser := NewGitignoreParser(tmpDir)
 	err := parser.Parse()

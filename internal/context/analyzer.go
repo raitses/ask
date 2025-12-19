@@ -128,7 +128,7 @@ func (a *Analyzer) walkDirectory(relPath string, depth int, builder *strings.Bui
 		if entry.IsDir() {
 			builder.WriteString(fmt.Sprintf("%s%s/\n", indent, name))
 			// Recurse into directory
-			a.walkDirectory(entryPath, depth+1, builder)
+			_ = a.walkDirectory(entryPath, depth+1, builder) // Ignore errors in subdirectories
 		} else {
 			// Check file size
 			info, err := entry.Info()

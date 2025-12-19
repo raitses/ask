@@ -120,11 +120,7 @@ func (p *Pruner) canUseAIPruning() bool {
 	}
 
 	tokens := p.store.EstimateTokens()
-	if tokens >= p.limits.MaxTokens {
-		return false
-	}
-
-	return true
+	return tokens < p.limits.MaxTokens
 }
 
 // pruneWithAI uses AI to intelligently select which messages to remove

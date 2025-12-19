@@ -136,7 +136,8 @@ func TestEmergencyPruneWithMessagesAndCache(t *testing.T) {
 		if finalTokens >= initialTokens {
 			t.Errorf("Tokens should have been reduced: %d -> %d", initialTokens, finalTokens)
 		}
-	} else {
+	}
+	if initialTokens <= 37500 {
 		t.Logf("Tokens (%d) not high enough to trigger emergency pruning (threshold: 37500)", initialTokens)
 	}
 }

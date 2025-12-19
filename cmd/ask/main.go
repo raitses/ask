@@ -104,10 +104,12 @@ func main() {
 	// Perform analysis if requested
 	if *analyze {
 		fmt.Fprintln(os.Stderr, "Analyzing directory structure...")
-		if err := manager.Analyze(); err != nil {
+		err := manager.Analyze()
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: Analysis failed: %v\n", err)
 			// Continue with query even if analysis fails
-		} else {
+		}
+		if err == nil {
 			fmt.Fprintln(os.Stderr, "Analysis complete.")
 		}
 	}

@@ -78,12 +78,13 @@ func TestEmergencyPruneThresholds(t *testing.T) {
 	emergencyTokens := 37500
 	emergencyMessages := 150
 
+	if initialCount <= emergencyMessages && initialTokens <= emergencyTokens {
+		t.Errorf("Expected to exceed emergency thresholds")
+	}
 	if initialCount > emergencyMessages || initialTokens > emergencyTokens {
 		t.Logf("Over emergency thresholds - would trigger emergency pruning")
 		t.Logf("  Messages: %d > %d", initialCount, emergencyMessages)
 		t.Logf("  Tokens: %d (threshold: %d)", initialTokens, emergencyTokens)
-	} else {
-		t.Errorf("Expected to exceed emergency thresholds")
 	}
 }
 
