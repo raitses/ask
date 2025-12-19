@@ -91,9 +91,15 @@ func main() {
 
 	query := strings.Join(args, " ")
 
-	// TODO: Implement --analyze flag (Phase 2)
+	// Perform analysis if requested
 	if *analyze {
-		fmt.Fprintf(os.Stderr, "Warning: --analyze flag is not yet implemented\n")
+		fmt.Fprintln(os.Stderr, "Analyzing directory structure...")
+		if err := manager.Analyze(); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: Analysis failed: %v\n", err)
+			// Continue with query even if analysis fails
+		} else {
+			fmt.Fprintln(os.Stderr, "Analysis complete.")
+		}
 	}
 
 	// Execute query
@@ -110,7 +116,7 @@ func printUsage() {
 	fmt.Println("Usage: ask [OPTIONS] <query>")
 	fmt.Println()
 	fmt.Println("Options:")
-	fmt.Println("  -a, --analyze      Analyze directory structure before responding (coming soon)")
+	fmt.Println("  -a, --analyze      Analyze directory structure before responding")
 	fmt.Println("  -r, --reset        Clear conversation context for current directory")
 	fmt.Println("  -i, --info         Show context information")
 	fmt.Println("  -h, --help         Show this help message")

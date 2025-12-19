@@ -9,7 +9,7 @@ A conversational CLI tool powered by AI that maintains context across queries. G
 - 🚀 Fast, zero-dependency Go binary
 - 🔧 Configurable for different LLM providers
 - 🌍 Cross-platform (macOS, Linux, Windows)
-- 📊 Directory analysis support (coming in Phase 2)
+- 📊 Directory analysis support (file tree, README, config detection)
 
 ## Installation
 
@@ -103,12 +103,18 @@ Reset conversation for current directory:
 ask --reset
 ```
 
-### Directory Analysis (Coming in Phase 2)
+### Directory Analysis
 
 Analyze project structure before asking:
 ```bash
 ask --analyze what's the architecture of this codebase?
 ```
+
+The analysis includes:
+- File tree (respecting .gitignore)
+- README content
+- Detected configuration files (go.mod, package.json, etc.)
+- Results are cached and included in the AI's context
 
 ## How It Works
 
@@ -151,7 +157,7 @@ make build-all
 ## Roadmap
 
 - [x] Phase 1: Core MVP (context persistence, basic queries)
-- [ ] Phase 2: Directory analysis (`--analyze` flag)
+- [x] Phase 2: Directory analysis (`--analyze` flag)
 - [ ] Phase 3: AI-driven context pruning
 - [ ] Phase 4: Multi-platform releases and CI/CD
 

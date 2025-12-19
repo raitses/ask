@@ -96,6 +96,19 @@ func (m *Manager) Reset() error {
 	return nil
 }
 
+// Analyze performs directory analysis and caches the results
+func (m *Manager) Analyze() error {
+	if err := AnalyzeDirectory(m.store); err != nil {
+		return fmt.Errorf("analysis failed: %w", err)
+	}
+
+	if err := m.store.Save(); err != nil {
+		return fmt.Errorf("failed to save analysis: %w", err)
+	}
+
+	return nil
+}
+
 // GetInfo returns information about the current context
 func (m *Manager) GetInfo() string {
 	info := fmt.Sprintf("Context for %s\n", m.store.Directory)
