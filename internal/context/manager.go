@@ -79,12 +79,39 @@ func (m *Manager) Query(userQuery string) (string, error) {
 	// Add assistant response to context
 	m.store.AddMessage("assistant", response)
 
+	// Check if pruning is needed
+	if err := m.checkAndPrune(); err != nil {
+		// Log warning but don't fail the query
+		fmt.Fprintf(os.Stderr, "Warning: Context pruning failed: %v\n", err)
+	}
+
 	// Save context
 	if err := m.store.Save(); err != nil {
 		return "", fmt.Errorf("failed to save context: %w", err)
 	}
 
 	return response, nil
+}
+
+// checkAndPrune checks if pruning is needed and performs it
+func (m *Manager) checkAndPrune() error {
+	pruner := NewPruner(m.store, m.client)
+
+	shouldPrune, reason := pruner.ShouldPrune()
+	if !shouldPrune {
+		return nil
+	}
+
+	fmt.Fprintf(os.Stderr, "Context pruning triggered: %s\n", reason)
+
+	if err := pruner.Prune(); err != nil {
+		return fmt.Errorf("pruning failed: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "Context pruned: %d messages remain (%d tokens estimated)\n",
+		len(m.store.Messages), m.store.EstimateTokens())
+
+	return nil
 }
 
 // Reset clears the conversation context
@@ -114,12 +141,19 @@ func (m *Manager) GetInfo() string {
 	info := fmt.Sprintf("Context for %s\n", m.store.Directory)
 	info += fmt.Sprintf("Messages: %d\n", m.store.Metadata.TotalMessages)
 	info += fmt.Sprintf("Estimated tokens: %d\n", m.store.Metadata.TotalTokensEstimate)
+	info += fmt.Sprintf("Prune count: %d\n", m.store.Metadata.PruneCount)
 
 	if m.store.LastAnalysisAt != nil {
 		info += fmt.Sprintf("Last analysis: %s\n", m.store.LastAnalysisAt.Format("2006-01-02 15:04:05"))
 	}
 
 	info += fmt.Sprintf("Last updated: %s\n", m.store.UpdatedAt.Format("2006-01-02 15:04:05"))
+
+	// Show pruning status
+	pruner := NewPruner(m.store, m.client)
+	if shouldPrune, reason := pruner.ShouldPrune(); shouldPrune {
+		info += fmt.Sprintf("\n⚠️  Pruning will be triggered soon: %s\n", reason)
+	}
 
 	return info
 }

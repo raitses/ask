@@ -127,12 +127,32 @@ func (s *Store) AddMessage(role, content string) {
 	s.Metadata.TotalTokensEstimate = s.EstimateTokens()
 }
 
-// EstimateTokens provides a rough estimate of token count (4 chars ≈ 1 token)
+// EstimateTokens provides a rough estimate of token count
+// Uses a more refined estimation: ~3.5 chars per token for English text
+// This is closer to actual GPT tokenization
 func (s *Store) EstimateTokens() int {
 	total := 0
 	for _, msg := range s.Messages {
-		total += len(msg.Content) / 4
+		// Count content tokens (3.5 chars ≈ 1 token)
+		total += int(float64(len(msg.Content)) / 3.5)
+
+		// Add overhead for message structure (~4 tokens per message)
+		total += 4
 	}
+
+	// Add system prompt overhead if there's analysis cache
+	if s.AnalysisCache != nil {
+		// File tree tokens
+		total += int(float64(len(s.AnalysisCache.FileTree)) / 3.5)
+		// README tokens
+		total += int(float64(len(s.AnalysisCache.ReadmeContent)) / 3.5)
+		// Config list overhead
+		total += len(s.AnalysisCache.PrimaryConfigs) * 2
+	}
+
+	// Base system prompt overhead (~150 tokens)
+	total += 150
+
 	return total
 }
 
