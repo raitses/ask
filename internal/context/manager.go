@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/raitses/ask/internal/api"
 	"github.com/raitses/ask/internal/config"
 	"github.com/raitses/ask/internal/prompt"
@@ -76,8 +78,19 @@ func (m *Manager) Query(userQuery string) (string, error) {
 	useClaudeCache := m.client.IsClaudeAPI()
 	messages := prompt.BuildMessages(m.store.Directory, m.config.OS, promptMessages, analysis, useClaudeCache)
 
-	// Get response from API
+	// Start spinner while waiting for API response
+	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+	s.Prefix = " "
+	s.Suffix = " Waiting for response..."
+	s.Writer = os.Stderr
+	s.Start()
+
+	// Get response from API (blocking call)
 	response, err := m.client.ChatCompletion(messages)
+
+	// Stop spinner regardless of success or error
+	s.Stop()
+
 	if err != nil {
 		return "", fmt.Errorf("API request failed: %w", err)
 	}
