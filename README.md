@@ -14,11 +14,54 @@ A conversational CLI tool powered by AI that maintains context across queries. G
 
 ## Installation
 
-### Prerequisites
+### Quick Install (Recommended)
 
-- Nix package manager (for building from source)
+```bash
+curl -sSL https://raw.githubusercontent.com/raitses/ask/main/install.sh | bash
+```
+
+This will automatically:
+- Detect your platform (macOS, Linux, Windows)
+- Download the latest release
+- Install to `/usr/local/bin`
+
+### Download Pre-built Binary
+
+Download the appropriate binary for your platform from the [latest release](https://github.com/raitses/ask/releases/latest):
+
+**macOS:**
+```bash
+# Apple Silicon (M1/M2/M3)
+curl -L -o ask.tar.gz https://github.com/raitses/ask/releases/latest/download/ask_VERSION_darwin_arm64.tar.gz
+tar -xzf ask.tar.gz
+sudo mv ask /usr/local/bin/
+
+# Intel
+curl -L -o ask.tar.gz https://github.com/raitses/ask/releases/latest/download/ask_VERSION_darwin_amd64.tar.gz
+tar -xzf ask.tar.gz
+sudo mv ask /usr/local/bin/
+```
+
+**Linux:**
+```bash
+# x86_64
+curl -L -o ask.tar.gz https://github.com/raitses/ask/releases/latest/download/ask_VERSION_linux_amd64.tar.gz
+tar -xzf ask.tar.gz
+sudo mv ask /usr/local/bin/
+
+# ARM64
+curl -L -o ask.tar.gz https://github.com/raitses/ask/releases/latest/download/ask_VERSION_linux_arm64.tar.gz
+tar -xzf ask.tar.gz
+sudo mv ask /usr/local/bin/
+```
+
+**Windows:**
+
+Download the `.zip` file from the releases page and extract to a directory in your PATH.
 
 ### Build from Source
+
+Prerequisites: Go 1.24+ or Nix
 
 ```bash
 # Clone the repository
@@ -31,10 +74,6 @@ make build
 # Install system-wide
 make install
 ```
-
-### Download Binary
-
-(Coming soon - releases will provide pre-built binaries)
 
 ## Configuration
 
@@ -142,6 +181,11 @@ export ASK_MODEL="gpt-3.5-turbo"
 
 ## Development
 
+### Prerequisites
+
+- Go 1.24+
+- (Optional) Nix for development environment
+
 ### Building
 
 ```bash
@@ -151,14 +195,36 @@ make build
 ### Testing
 
 ```bash
+# Run tests
 make test
+
+# Run tests with race detector
+make test-race
 ```
 
 ### Build for Multiple Platforms
 
 ```bash
+# Build for all platforms
 make build-all
+
+# Test goreleaser locally
+make release-test
 ```
+
+### Making a Release
+
+1. Tag the commit:
+   ```bash
+   git tag -a v0.4.0 -m "Release v0.4.0"
+   git push origin v0.4.0
+   ```
+
+2. GitHub Actions will automatically:
+   - Run tests
+   - Build binaries for all platforms
+   - Create a GitHub release
+   - Upload release artifacts
 
 ## Context Management
 
@@ -197,7 +263,7 @@ The tool will warn you if:
 - [x] Phase 1: Core MVP (context persistence, basic queries)
 - [x] Phase 2: Directory analysis (`--analyze` flag)
 - [x] Phase 3: AI-driven context pruning
-- [ ] Phase 4: Multi-platform releases and CI/CD
+- [x] Phase 4: Multi-platform releases and CI/CD
 
 ## Contributing
 

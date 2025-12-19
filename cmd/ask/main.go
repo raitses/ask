@@ -10,7 +10,11 @@ import (
 	"github.com/raitses/ask/internal/context"
 )
 
-const version = "0.3.2"
+var (
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
+)
 
 func main() {
 	// Define flags
@@ -37,6 +41,12 @@ func main() {
 	// Handle special flags
 	if *showVersion {
 		fmt.Printf("ask version %s\n", version)
+		if commit != "unknown" {
+			fmt.Printf("commit: %s\n", commit)
+		}
+		if date != "unknown" {
+			fmt.Printf("built: %s\n", date)
+		}
 		os.Exit(0)
 	}
 
